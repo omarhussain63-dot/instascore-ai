@@ -1,0 +1,75 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  accounts  InstagramAccount[]
+}
+
+model InstagramAccount {
+  id                   String   @id @default(uuid())
+  userId               String?
+  instagramUserId       String?
+  username             String   @unique
+  name                 String?
+  accountType          String?
+  category             String?
+  country              String?
+  followersCount        Int      @default(0)
+  followsCount          Int      @default(0)
+  mediaCount            Int      @default(0)
+  profilePictureUrl     String?
+  accessTokenEncrypted  String?
+  tokenExpiresAt        DateTime?
+  createdAt             DateTime @default(now())
+  user                  User?    @relation(fields: [userId], references: [id])
+  snapshots             ProfileSnapshot[]
+  media                 MediaPost[]
+  scores                ProfileScore[]
+}
+
+model ProfileSnapshot {
+  id                 String   @id @default(uuid())
+  instagramAccountId String
+  followersCount     Int
+  followsCount       Int?
+  mediaCount         Int?
+  reach              Int?
+  impressions        Int?
+  engagementTotal    Int?
+  snapshotDate       DateTime
+  account            InstagramAccount @relation(fields: [instagramAccountId], references: [id])
+}
+
+model MediaPost {
+  id                 String   @id @default(uuid())
+  instagramAccountId String
+  instagramMediaId   String?
+  mediaType          String
+  caption            String?
+  permalink          String?
+  timestamp          DateTime?
+  likeCount          Int      @default(0)
+  commentCount       Int      @default(0)
+  reach              Int?
+  impressions        Int?
+  saves              Int?
+  shares             Int?
+  account            InstagramAccount @relation(fields: [instagramAccountId], references: [id])
+}
+
+model ProfileScore {
+  id                   String   @id @default(uuid())
+  instagramAccountId    String
+  totalScore            Float
+  engagementScore       Float
+  growthScore           Float
+  reachScore            Float
+  consistencyScore      Float
+  audienceQualityScore  Float
+  calculatedAt          DateTime @default(now())
+  account               InstagramAccount @relation(fields: [instagramAccountId], references: [id])
+}
